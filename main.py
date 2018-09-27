@@ -11,7 +11,7 @@ ACTOR_LEARNING_RATE = 0.001
 CRITIC_LEARNING_RATE =  0.01
 max_episode = 1000
 
-def actor_critic(epochs=1000, GAMMA = 0.99, train_indicator=True, render=False, temp=False):
+def actor_critic(epochs=1000, GAMMA = 0.99, train_indicator=True, render=False, temp=False, baseline = True):
     with tf.Session() as sess:
         
         
@@ -48,13 +48,17 @@ def actor_critic(epochs=1000, GAMMA = 0.99, train_indicator=True, render=False, 
             for l in range(k):
                 
                 G = np.sum(total_reward[l:k+1])
-                print(l,G)
+                #print(l,G) # print for debug
                 state = np.reshape(total_state[l], (1, robot.state_dim))
                 action = np.reshape(total_action[l], (1, 1))
                 
-                delta = G - critic.predict(state)
-                critic.train(state,delta)
-                actor.train(state, action, G)
+                
+                if baseline:
+                    delta = G - critic.predict(state)
+                    critic.train(state,delta)
+                    actor.train(state, action, delta)
+                else:
+                    actor.train(state, action, G)
 
             
             
@@ -80,5 +84,5 @@ def actor_critic(epochs=1000, GAMMA = 0.99, train_indicator=True, render=False, 
 
 
 if __name__ == '__main__':
-    actor_critic(epochs=500)       
+    actor_critic(epochs=500, baseline = True)       
         

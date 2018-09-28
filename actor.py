@@ -1,21 +1,14 @@
-
 import tensorflow as tf
 import numpy as np
-# ===========================
-#   Actor and Critic DNNs
-# ===========================
-
 
 FIRST_LAYER = 150
 SECOND_LAYER = 150
 
 class ActorNetwork(object):
-    """
-    Input to the network is the state, output is the action
-    under a deterministic policy.
-    The output layer activation is a tanh to keep the action
-    between -2 and 2
-    """
+    
+    # Input to the network is the state, output is the probability of taking an action
+    # The output layer activation is a tanh to keep the action between -1 and 1
+    
 
     def __init__(self, sess, state_dim, action_dim, learning_rate, scope="policy_estimator"):
         with tf.variable_scope(scope):
@@ -38,27 +31,22 @@ class ActorNetwork(object):
             self.optimizer = tf.train.AdamOptimizer(learning_rate)#tf.train.RMSPropOptimizer(learning_rate) 
             self.train_op = self.optimizer.minimize(self.loss)
             
-            self.num_trainable_vars = len(
-                self.network_params)             
+            self.num_trainable_vars = len(self.network_params)             
 
     def create_actor_network(self,scope):
         with tf.variable_scope(scope):
             # weights initialization
             w1_initial = np.random.normal(size=(self.s_dim,FIRST_LAYER)).astype(np.float32)
             w2_initial = np.random.normal(size=(FIRST_LAYER,SECOND_LAYER)).astype(np.float32)
-            #w3_initial = np.random.normal(size=(SECOND_LAYER,self.a_dim)).astype(np.float32)
-
-            #w1_initial = np.random.uniform(size=(self.s_dim,FIRST_LAYER),low= -0.01, high=0.01 ).astype(np.float32)  
-            #w2_initial = np.random.uniform(size=(FIRST_LAYER,SECOND_LAYER),low= -0.01, high=0.01 ).astype(np.float32)  
             w3_initial = np.random.uniform(size=(SECOND_LAYER,self.a_dim),low= -0.001, high=0.001 ).astype(np.float32)
             # Placeholders
             inputs = tf.placeholder(tf.float32, shape=[None, self.s_dim])
-            # Layer 1 without BN
+            # Layer 1 
             w1 = tf.Variable(w1_initial)
             b1 = tf.Variable(tf.zeros([FIRST_LAYER]))
             z1 = tf.matmul(inputs,w1)+b1
             l1 = tf.nn.tanh(z1)
-            # Layer 2 without BN
+            # Layer 2 
             w2 = tf.Variable(w2_initial)
             b2 = tf.Variable(tf.zeros([SECOND_LAYER]))
             z2 = tf.matmul(l1,w2)+b2

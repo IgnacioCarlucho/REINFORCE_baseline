@@ -1,5 +1,3 @@
-
-
 import tensorflow as tf
 import numpy as np
 
@@ -9,10 +7,9 @@ SECOND_LAYER = 150
 
 
 class CriticNetwork(object):
-    """
-    Input to the network is the state and action, output is Q(s,a).
-    The action must be obtained from the output of the Actor network.
-    """
+
+    # Input to the network is the state and action, output is Q(s,a).
+    # The action must be obtained from the output of the Actor network.
 
     def __init__(self, sess, state_dim, learning_rate, num_actor_vars, scope = "value_estimator"):
         with tf.variable_scope(scope):
@@ -38,21 +35,19 @@ class CriticNetwork(object):
             # weights initialization
             w1_initial = np.random.normal(size=(self.s_dim,FIRST_LAYER)).astype(np.float32)
             w2_initial = np.random.normal(size=(FIRST_LAYER,SECOND_LAYER)).astype(np.float32)
-            #w3_initial = np.random.normal(size=(SECOND_LAYER,1)).astype(np.float32)
-
             w3_initial = np.random.uniform(size=(SECOND_LAYER,1),low= -0.001, high=0.001 ).astype(np.float32)
+            
             # Placeholders
             inputs = tf.placeholder(tf.float32, shape=[None, self.s_dim], name = 'inputs')
-            
             # Layer 1 contains only the inputs of the state
             w1 = tf.Variable(w1_initial)
             b1 = tf.Variable(tf.zeros([FIRST_LAYER]))
             z1 = tf.matmul(inputs,w1) + b1
             l1 = tf.nn.relu(z1)
-            # Layer in this layer, the actions are merged as inputs
-            w2_i = tf.Variable(w2_initial)
+            # Layer 2
+            w2 = tf.Variable(w2_initial)
             b2 = tf.Variable(tf.zeros([SECOND_LAYER]))
-            z2 = tf.matmul(l1,w2_i) + b2 
+            z2 = tf.matmul(l1,w2) + b2 
             l2 = tf.nn.relu(z2)
             #output layer
             w3 = tf.Variable(w3_initial)

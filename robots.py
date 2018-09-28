@@ -3,10 +3,7 @@ import gym
 from gym.envs.registration import register, spec
 import time 
 
-# down = 1
-# left = 0 
-# up = 3
-# rigth = 2
+
 
 class gym_environment(object):
 
